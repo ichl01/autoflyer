@@ -1,27 +1,25 @@
-from flask import render_template ,request,jsonify,redirect
+from flask import render_template ,request,jsonify
 from autoflyer import app
 from autoflyer.models.items import items
 from autoflyer import db
-import ast,json
+
 @app.route('/')
 def index():
     return render_template('autoflyer/index.html')
 @app.route('/api/',methods=["GET"])
 def apiget():
     storenameget = request.args.get("storename")
-    qu = db.session.query(items).filter_by(storename=storenameget).all()
+    qu = db.session.query(items).filter_by(storename="storenameget").all()
     a=0 #quのレコード数
     for name in qu:
         a= a + 1
     print(a)
-    c = '{"items":['
+    c = []
     #{‘key1’: 10, ‘key2’: 20, ‘key3’: 30}
     for num in range(a):
-       c += str({"storename":qu[num].storename,"img":qu[num].img,"name":qu[num].name,"price":qu[num].price,"bio":qu[num].bio,"importance":qu[num].importance,"created_at":qu[num].created_at},)
-    f=c[:-1]
-    f += "]"
-    print(f)
-    return f
+       c.append({"name":qu[num].name,"price":qu[num].price,"bio":qu[num].bio,"importance":qu[num].importance,"created_at":qu[num].created_at})
+    print(c)
+    return jsonify(c)
 @app.route('/test',methods=["GET"])
 def test():
     adddata = items(
@@ -33,7 +31,7 @@ def test():
     db.session.add(adddata)
     db.session.commit()
 
-@app.route('/post/', methods=["POST"])
+@app.route('/api/', methods=['POST'])
 def insert():
   name_txt = request.form['name'] 
   price_txt = request.form['price']
